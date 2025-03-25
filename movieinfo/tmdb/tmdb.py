@@ -1,13 +1,18 @@
 from typing import Any, List, Optional
 import httpx
+import os
+from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
+
+# Load environment variables
+load_dotenv()
 
 # Initialize FastMCP server
 mcp = FastMCP("tmdb")
 
 # Constants
 TMDB_API_BASE = "https://api.themoviedb.org/3"
-API_KEY = "<TMDB API KEY>"  # Replace with your actual API key
+API_KEY = os.getenv("TMDB_API_KEY")  # Get API key from environment
 
 # Helper function for API requests
 async def make_tmdb_request(endpoint: str, params: dict = None) -> dict[str, Any] | None:

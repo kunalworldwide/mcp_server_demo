@@ -16,16 +16,20 @@ Before setting up these MCP servers, make sure you have the following installed:
 - **Git**
 - **uv** - A fast Python package installer and resolver
 
+```
+UV installation --> https://docs.astral.sh/uv/getting-started/installation/
+```
+
 ## 🚀 Getting Started
 
 ### Step 1: Clone the Repository
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/claude-mcp-servers.git
+git clone https://github.com/kunalworldwide/mcp_server_demo.git
 
 # Navigate to the project directory
-cd claude-mcp-servers
+cd mcp_server_demo
 ```
 
 ### Step 2: Install uv (if you haven't already)
@@ -106,13 +110,14 @@ To connect these servers to Claude Desktop, you need to configure the Claude Des
 
 The configuration file is located at:
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Roaming\Claude\claude_desktop_config.json`
 
 Create this file if it doesn't exist.
 
 ### Step 2: Add Server Configurations
 
 Add the following to your `claude_desktop_config.json` file:
+
 
 ```json
 {
@@ -151,7 +156,9 @@ Add the following to your `claude_desktop_config.json` file:
 Replace `/path/to/your/uv` with the actual path to your uv executable. You can find this by running:
 ```bash
 which uv  # On macOS/Linux
-where uv  # On Windows
+```
+```powershell
+(Get-Command uv).Source #On Windows
 ```
 
 Also replace `/absolute/path/to/claude-mcp-servers` with the absolute path to where you cloned the repository.
