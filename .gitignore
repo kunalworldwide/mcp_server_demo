@@ -177,3 +177,5 @@ cython_debug/
 
 #project specifict things
 **/amity_data/**
+amitypyinfo/amity_crawler.py
+amitypyinfo/requirements.txt
