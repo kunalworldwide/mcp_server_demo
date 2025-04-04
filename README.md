@@ -7,10 +7,17 @@ This repository contains a collection of Model Context Protocol (MCP) servers th
 - **Weather Server**: Get real-time weather forecasts and alerts using the National Weather Service API
 - **TMDB Movie Server**: Access information about movies and TV shows via The Movie Database API
 - **Amity University Crawler**: Extract and query information from Amity University Bengaluru's website
+- **Filesystem Server**: Access and manage files on your local filesystem
 
 ## 🛠️ Prerequisites
 
-Before setting up these MCP servers, make sure you have the following installed:
+Before setting up these MCP servers, make sure you have one of the following installed:
+
+- **Docker** (recommended for easy setup)
+  - Docker Desktop for Windows/Mac or Docker Engine for Linux
+  - No other dependencies needed
+
+OR if you prefer to run without Docker:
 
 - **Python 3.10+**
 - **Git**
@@ -22,7 +29,31 @@ UV installation --> https://docs.astral.sh/uv/getting-started/installation/
 
 ## 🚀 Getting Started
 
-### Step 1: Clone the Repository
+### Option 1: Using Docker (Recommended)
+
+#### Step 1: Pull the Docker images
+
+```bash
+# Pull the Weather MCP server
+docker pull kunalondock/mcp-weather:pythonv1
+
+# Pull the TMDB Movie MCP server
+docker pull kunalondock/mcp-movie:pythonv1
+
+# Pull the Amity University MCP server
+docker pull kunalondock/mcp-amity:pythonv1
+
+# Pull the Filesystem MCP server
+docker pull kunalondock/mcp-filesystem:pythonv1
+```
+
+#### Step 2: Configure Claude Desktop
+
+Skip to the "Connecting to Claude Desktop" section below and use the Docker configuration.
+
+### Option 2: Manual Setup with Python
+
+#### Step 1: Clone the Repository
 
 ```bash
 # Clone the repository
@@ -32,7 +63,7 @@ git clone https://github.com/kunalworldwide/mcp_server_demo.git
 cd mcp_server_demo
 ```
 
-### Step 2: Install uv (if you haven't already)
+#### Step 2: Install uv (if you haven't already)
 
 **macOS/Linux**:
 ```bash
@@ -46,9 +77,9 @@ curl -LsSf https://astral.sh/uv/install.py | python
 
 After installation, restart your terminal to ensure the `uv` command is available.
 
-### Step 3: Set Up Each Server
+#### Step 3: Set Up Each Server
 
-#### Weather Server
+##### Weather Server
 
 ```bash
 # Navigate to the weather directory
@@ -65,7 +96,7 @@ uv pip install -r requirements.txt
 uv run weather.py
 ```
 
-#### TMDB Movie Server
+##### TMDB Movie Server
 
 ```bash
 # Navigate to the tmdb directory
@@ -85,7 +116,7 @@ uv pip install -r requirements.txt
 uv run tmdb.py
 ```
 
-#### Amity University Crawler
+##### Amity University Crawler
 
 ```bash
 # Navigate to the amity_crawler directory
@@ -116,8 +147,65 @@ Create this file if it doesn't exist.
 
 ### Step 2: Add Server Configurations
 
-Add the following to your `claude_desktop_config.json` file:
+#### Option 1: Docker Configuration (Recommended)
 
+Add the following to your `claude_desktop_config.json` file to use the pre-built Docker images:
+
+```json
+{
+    "mcpServers": {
+        "weather": {
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "kunalondock/mcp-weather:pythonv1"
+            ]
+        },
+        "tmdb": {
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "-e", "TMDB_API_KEY=46c00bf3aa4f426c510c4b3a026c29d6",
+                "--rm",
+                "kunalondock/mcp-movie:pythonv1"
+            ]
+        },
+        "amity": {
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--mount", "type=volume,src=amity-data,dst=/app/amity_data",
+                "kunalondock/mcp-amity:pythonv1"
+            ]
+        },
+        "filesystem": {
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--mount", "type=bind,src=C:\\path\\to\\your\\files,dst=/projects/files",
+                "kunalondock/mcp-filesystem:pythonv1",
+                "/projects"
+            ]
+        }
+    }
+}
+```
+
+Notes:
+- For the filesystem server, replace `C:\\path\\to\\your\\files` with the Windows path to the directory you want to make accessible to Claude
+- On macOS/Linux, use the appropriate path format: `/path/to/your/files`
+- The TMDB API key is pre-configured, but you can replace it with your own if needed
+
+#### Option 2: Local Python Configuration
+
+If you're not using Docker and have set up the servers locally with Python, use this configuration instead:
 
 ```json
 {
@@ -126,7 +214,7 @@ Add the following to your `claude_desktop_config.json` file:
             "command": "/path/to/your/uv",
             "args": [
                 "--directory",
-                "/absolute/path/to/claude-mcp-servers/weather",
+                "/absolute/path/to/mcp_server_demo/weather",
                 "run",
                 "weather.py"
             ]
@@ -135,7 +223,7 @@ Add the following to your `claude_desktop_config.json` file:
             "command": "/path/to/your/uv",
             "args": [
                 "--directory",
-                "/absolute/path/to/claude-mcp-servers/movieinfo/tmdb",
+                "/absolute/path/to/mcp_server_demo/movieinfo/tmdb",
                 "run",
                 "tmdb.py"
             ]
@@ -144,7 +232,7 @@ Add the following to your `claude_desktop_config.json` file:
             "command": "/path/to/your/uv",
             "args": [
                 "--directory",
-                "/absolute/path/to/claude-mcp-servers/amity_crawler/amitycrawler",
+                "/absolute/path/to/mcp_server_demo/amitycrawler",
                 "run",
                 "amity_crawler.py"
             ]
@@ -161,7 +249,7 @@ which uv  # On macOS/Linux
 (Get-Command uv).Source #On Windows
 ```
 
-Also replace `/absolute/path/to/claude-mcp-servers` with the absolute path to where you cloned the repository.
+Also replace `/absolute/path/to/mcp_server_demo` with the absolute path to where you cloned the repository.
 
 ### Step 3: Restart Claude Desktop
 
@@ -185,62 +273,32 @@ Once connected, you can test each server by asking Claude questions like:
   - "Who are the faculty members in the Computer Science department?"
   - "Tell me about the admission process at Amity University."
 
-## 📚 Understanding the Code Structure
-
-### Directory Structure
-
-```
-.
-├── LICENSE
-├── README.md
-├── amitycrawler
-│   ├── README.md
-│   ├── amity_crawler.py
-│   ├── main.py
-│   ├── pyproject.toml
-│   └── uv.lock
-├── movieinfo
-│   └── tmdb
-│       ├── README.md
-│       ├── main.py
-│       ├── pyproject.toml
-│       ├── tmdb.py
-│       └── uv.lock
-└── weather
-    ├── README.md
-    ├── main.py
-    ├── pyproject.toml
-    ├── uv.lock
-    └── weather.py
-```
-
-Each server follows a similar structure:
-
-1. **Main Server File** (`weather.py`, `tmdb.py`, `amity_crawler.py`):
-   - Contains tool definitions and API integration logic
-   - Uses FastMCP to create and run the server
-
-2. **Data Directory** (for amity_crawler):
-   - Stores crawled and structured data
-   - Persists information between server sessions
-
-3. **Dependencies**:
-   - Each server uses the MCP SDK
-   - Additional libraries like httpx for API requests and BeautifulSoup for web scraping
+- **Filesystem Server**:
+  - "What files are in my Downloads folder?"
+  - "Read the content of file.txt"
+  - "Create a new directory called 'claude-files'"
 
 ## 🔧 Troubleshooting
 
 If you encounter issues, try these solutions:
 
+- **Docker not running**:
+  - Make sure Docker Desktop or Docker Engine is running
+  - Check if you can run a simple Docker container with `docker run hello-world`
+
+- **Docker images not found**:
+  - Verify you pulled the images with `docker images | grep kunalondock`
+  - If not found, run the docker pull commands again
+
 - **Server not showing up in Claude Desktop**:
   - Check your `claude_desktop_config.json` for syntax errors
-  - Ensure the paths to your servers are absolute, not relative
+  - Ensure the paths in your configuration are correct
   - Restart Claude Desktop completely
 
 - **Tool calls failing**:
   - Check Claude's logs for errors
-  - Verify your server builds and runs without errors 
-  - Make sure you've added any required API keys
+  - Verify Docker can access the necessary files and directories
+  - Make sure you've configured the correct paths
 
 - **Checking Claude's logs**:
   - macOS: Check log files in `~/Library/Logs/Claude/`
